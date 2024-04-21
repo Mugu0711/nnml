@@ -1,0 +1,32 @@
+# Importing necessary libraries
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+# Load the Titanic dataset
+titanic_data = pd.read_csv('titanic.csv.xls')
+
+# Preprocessing the data
+# For simplicity, let's drop rows with missing values and irrelevant columns
+titanic_data.dropna(inplace=True)
+titanic_data.drop(['PassengerId', 'Name', 'Ticket', 'Cabin', 'Embarked'], axis=1, inplace=True)
+
+# Encoding categorical variables (Sex)
+titanic_data['Sex'] = titanic_data['Sex'].map({'male': 0, 'female': 1})
+
+# Standardizing features
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(titanic_data.drop('Survived', axis=1))
+
+# Applying PCA to reduce dimensionality
+pca = PCA(n_components=3)
+pca_components = pca.fit_transform(scaled_features)
+
+# Creating a DataFrame for the PCA components
+pca_df = pd.DataFrame(data=pca_components, columns=['PCA1', 'PCA2', 'PCA3'])
+
+# Concatenating PCA components with target variable (Survived)
+final_df = pd.concat([pca_df, titanic_data['Survived']], axis=1)
+
+# Printing the final DataFrame with PCA components
+print(final_df.head())
